@@ -4,7 +4,6 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -20,6 +19,6 @@ public class Book {
     private LocalDateTime createDate;
     private String name;
     private String author;
-    private BigDecimal price;
+    private Double price;
     
 }

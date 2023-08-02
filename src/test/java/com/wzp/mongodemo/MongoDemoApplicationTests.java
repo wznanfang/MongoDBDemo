@@ -37,7 +37,7 @@ class MongoDemoApplicationTests {
         book.setCreateDate(LocalDateTime.now());
         book.setName("人间游途");
         book.setAuthor("不逆");
-        book.setPrice(BigDecimal.valueOf(100));
+        book.setPrice(100.0);
         bookRepository.save(book);
         List<Book> list = new ArrayList<>();
         for (int i = 1; i < 101; i++) {
@@ -46,7 +46,7 @@ class MongoDemoApplicationTests {
             book1.setCreateDate(LocalDateTime.now());
             book1.setName("人间游途" + i);
             book1.setAuthor("不逆" + i);
-            book1.setPrice(BigDecimal.valueOf(100 + i));
+            book1.setPrice((double) i);
             list.add(book1);
         }
         bookRepository.saveAll(list);
@@ -57,7 +57,7 @@ class MongoDemoApplicationTests {
     void jpaUpdate() {
         Optional<Book> optional = bookRepository.findById("ab99660d-aecf-435e-b7dc-a96496d5628b");
         Book book = optional.orElse(new Book());
-        book.setPrice(BigDecimal.valueOf(99.99));
+        book.setPrice(99.99);
         bookRepository.save(book);
     }
 
@@ -71,18 +71,18 @@ class MongoDemoApplicationTests {
 
     @Test
     void jpaFindById() {
-        Optional<Book> optional = bookRepository.findById("ab99660d-aecf-435e-b7dc-a96496d5628b");
+        Optional<Book> optional = bookRepository.findById("88f8d913-9ebd-4765-9ec3-a6b6c0f1bde7");
         System.err.println(optional.orElse(null));
     }
 
 
     @Test
     void jpaFindAll() {
-        ///创建匹配器，即如何使用查询条件
+        //创建匹配器，即如何使用查询条件
         ExampleMatcher matcher = ExampleMatcher
                 .matching()//构建对象
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)//改变默认字符串匹配方式：模糊查询
-                .withIgnoreCase(true);//改变默认大小写忽略方式：忽略大小写
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)//模糊查询
+                .withIgnoreCase(true);//忽略大小写
         Book book = new Book();
         book.setName("人间");
         book.setAuthor("不");
@@ -96,7 +96,7 @@ class MongoDemoApplicationTests {
     }
 
 
-    /**************************-----使用mongoTemplate-----******************************/
+    /***********************************-----使用mongoTemplate-----***********************************/
 
 
     @Test
@@ -106,7 +106,7 @@ class MongoDemoApplicationTests {
         book.setCreateDate(LocalDateTime.now());
         book.setName("人间游途");
         book.setAuthor("不逆");
-        book.setPrice(BigDecimal.valueOf(100));
+        book.setPrice(100.0);
         mongoTemplate.insert(book);
         List<Book> list = new ArrayList<>();
         for (int i = 1; i < 101; i++) {
@@ -115,7 +115,7 @@ class MongoDemoApplicationTests {
             book1.setCreateDate(LocalDateTime.now());
             book1.setName("人间游途" + i);
             book1.setAuthor("不逆" + i);
-            book1.setPrice(BigDecimal.valueOf(100 + i));
+            book1.setPrice((double) i);
             list.add(book1);
         }
         mongoTemplate.insertAll(list);
