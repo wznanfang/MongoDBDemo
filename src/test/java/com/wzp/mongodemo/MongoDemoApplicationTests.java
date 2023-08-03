@@ -7,6 +7,7 @@ import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.wzp.mongodemo.entity.Book;
+import com.wzp.mongodemo.entity.Books;
 import com.wzp.mongodemo.repository.BookRepository;
 import jakarta.annotation.Resource;
 import org.bson.Document;
@@ -46,8 +47,10 @@ class MongoDemoApplicationTests {
         book.setName("人间游途");
         book.setAuthor("不逆");
         book.setPrice(100.0);
+        Books books = Books.builder().author("我是不逆").build();
+        book.setBooks(books);
         bookRepository.save(book);
-        List<Book> list = new ArrayList<>();
+        /*List<Book> list = new ArrayList<>();
         for (int i = 1; i < 101; i++) {
             Book book1 = new Book();
             book1.setId(UUID.randomUUID().toString());
@@ -57,7 +60,7 @@ class MongoDemoApplicationTests {
             book1.setPrice((double) i);
             list.add(book1);
         }
-        bookRepository.saveAll(list);
+        bookRepository.saveAll(list);*/
     }
 
 
@@ -94,6 +97,7 @@ class MongoDemoApplicationTests {
         Book book = new Book();
         book.setName("人间");
         book.setAuthor("不");
+        book.setBooks(Books.builder().author("我是").build());
         Sort sort = Sort.by(Sort.Order.asc("price"));
         Pageable pageable = PageRequest.of(0, 10, sort);
         Example<Book> example = Example.of(book, matcher);
@@ -156,10 +160,6 @@ class MongoDemoApplicationTests {
 
     @Test
     void templateFindAll() {
-        //不带条件查询全部
-//        List<Book> bookList = mongoTemplate.findAll(Book.class);
-//        System.err.println(bookList);
-        //带条件模糊查询
         String name = "人间";
         String author = "不逆";
         //查询条件构建
@@ -171,6 +171,10 @@ class MongoDemoApplicationTests {
         if (!ObjectUtils.isEmpty(author)) {
             Pattern authorPattern = Pattern.compile(".*" + author + ".*", Pattern.CASE_INSENSITIVE);
             criteria.and("author").regex(authorPattern);
+        }
+        if (!ObjectUtils.isEmpty(author)) {
+            Pattern authorPattern = Pattern.compile(".*" + author + ".*", Pattern.CASE_INSENSITIVE);
+            criteria.and("books.author").regex(authorPattern);
         }
         Query query = new Query(criteria).skip(0).limit(10).with(Sort.by(Sort.Order.desc("price")));
         //查询数来集合（表）中的总记录数
