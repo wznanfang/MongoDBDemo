@@ -1,12 +1,21 @@
 package com.wzp.mongodemo;
 
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import com.wzp.mongodemo.entity.Book;
 import com.wzp.mongodemo.repository.BookRepository;
 import jakarta.annotation.Resource;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -15,11 +24,10 @@ import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @SpringBootTest
 class MongoDemoApplicationTests {
@@ -171,6 +179,28 @@ class MongoDemoApplicationTests {
         if (!CollectionUtils.isEmpty(books)) {
             books.forEach(System.out::println);
         }
+    }
+
+
+    @Test
+    void aggr() {
+        //求平均数
+//        GroupOperation groupOperation = group().avg("price").as("averagePrice");
+//        Aggregation aggregation = newAggregation(groupOperation);
+//        // 执行聚合操作
+//        AggregationResults<Document> result = mongoTemplate.aggregate(aggregation, "book", Document.class);
+//        Document aggregateResult = result.getUniqueMappedResult();
+//        // 提取平均价格值
+//        Double averagePrice = aggregateResult.getDouble("averagePrice");
+//        System.err.println(averagePrice);
+
+        //求分组后的总数
+        GroupOperation groupOperation = group("author").sum("price").as("totalPrice");
+        LimitOperation limitOperation = limit(10);
+        Aggregation aggregation = newAggregation(groupOperation, limitOperation);
+        //执行聚合操作
+        AggregationResults<Document> result = mongoTemplate.aggregate(aggregation, "book", Document.class);
+        result.getMappedResults().forEach(System.out::println);
     }
 
 
