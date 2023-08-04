@@ -1,17 +1,10 @@
 package com.wzp.mongodemo;
 
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Accumulators;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
 import com.wzp.mongodemo.entity.Book;
-import com.wzp.mongodemo.entity.Books;
+import com.wzp.mongodemo.entity.BookInfo;
 import com.wzp.mongodemo.repository.BookRepository;
 import jakarta.annotation.Resource;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
@@ -23,7 +16,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -42,25 +34,23 @@ class MongoDemoApplicationTests {
     @Test
     void jpaSave() {
         Book book = new Book();
-        book.setId(UUID.randomUUID().toString());
+        book.setId(0L);
         book.setCreateDate(LocalDateTime.now());
         book.setName("人间游途");
-        book.setAuthor("不逆");
-        book.setPrice(100.0);
-        Books books = Books.builder().author("我是不逆").build();
-        book.setBooks(books);
+        BookInfo bookInfo = BookInfo.builder().author("我是不逆").price(0.0).build();
+        book.setBookInfo(bookInfo);
         bookRepository.save(book);
-        /*List<Book> list = new ArrayList<>();
+        List<Book> list = new ArrayList<>();
         for (int i = 1; i < 101; i++) {
             Book book1 = new Book();
-            book1.setId(UUID.randomUUID().toString());
+            book1.setId((long) i);
             book1.setCreateDate(LocalDateTime.now());
             book1.setName("人间游途" + i);
-            book1.setAuthor("不逆" + i);
-            book1.setPrice((double) i);
+            BookInfo bookInfo1 = BookInfo.builder().author("我是不逆" + i).price((double) i).build();
+            book1.setBookInfo(bookInfo1);
             list.add(book1);
         }
-        bookRepository.saveAll(list);*/
+        bookRepository.saveAll(list);
     }
 
 
@@ -68,7 +58,9 @@ class MongoDemoApplicationTests {
     void jpaUpdate() {
         Optional<Book> optional = bookRepository.findById("ab99660d-aecf-435e-b7dc-a96496d5628b");
         Book book = optional.orElse(new Book());
-        book.setPrice(99.99);
+        BookInfo bookInfo = book.getBookInfo();
+        bookInfo.setPrice(99.99);
+        book.setBookInfo(bookInfo);
         bookRepository.save(book);
     }
 
@@ -96,8 +88,7 @@ class MongoDemoApplicationTests {
                 .withIgnoreCase(true);//忽略大小写
         Book book = new Book();
         book.setName("人间");
-        book.setAuthor("不");
-        book.setBooks(Books.builder().author("我是").build());
+        book.setBookInfo(BookInfo.builder().author("我是").build());
         Sort sort = Sort.by(Sort.Order.asc("price"));
         Pageable pageable = PageRequest.of(0, 10, sort);
         Example<Book> example = Example.of(book, matcher);
@@ -114,20 +105,20 @@ class MongoDemoApplicationTests {
     @Test
     void templateSave() {
         Book book = new Book();
-        book.setId(UUID.randomUUID().toString());
+        book.setId(0L);
         book.setCreateDate(LocalDateTime.now());
         book.setName("人间游途");
-        book.setAuthor("不逆");
-        book.setPrice(100.0);
+        BookInfo bookInfo = BookInfo.builder().author("我是不逆").price(0.0).build();
+        book.setBookInfo(bookInfo);
         mongoTemplate.insert(book);
         List<Book> list = new ArrayList<>();
         for (int i = 1; i < 101; i++) {
             Book book1 = new Book();
-            book1.setId(UUID.randomUUID().toString());
+            book1.setId((long) i);
             book1.setCreateDate(LocalDateTime.now());
             book1.setName("人间游途" + i);
-            book1.setAuthor("不逆" + i);
-            book1.setPrice((double) i);
+            BookInfo bookInfo1 = BookInfo.builder().author("我是不逆" + i).price((double) i).build();
+            book.setBookInfo(bookInfo1);
             list.add(book1);
         }
         mongoTemplate.insertAll(list);
@@ -170,13 +161,9 @@ class MongoDemoApplicationTests {
         }
         if (!ObjectUtils.isEmpty(author)) {
             Pattern authorPattern = Pattern.compile(".*" + author + ".*", Pattern.CASE_INSENSITIVE);
-            criteria.and("author").regex(authorPattern);
+            criteria.and("bookInfo.author").regex(authorPattern);
         }
-        if (!ObjectUtils.isEmpty(author)) {
-            Pattern authorPattern = Pattern.compile(".*" + author + ".*", Pattern.CASE_INSENSITIVE);
-            criteria.and("books.author").regex(authorPattern);
-        }
-        Query query = new Query(criteria).skip(0).limit(10).with(Sort.by(Sort.Order.desc("price")));
+        Query query = new Query(criteria).skip(0).limit(10).with(Sort.by(Sort.Order.asc("bookInfo.price")));
         //查询数来集合（表）中的总记录数
         long count = mongoTemplate.count(query, Book.class);
         List<Book> books = mongoTemplate.find(query, Book.class);

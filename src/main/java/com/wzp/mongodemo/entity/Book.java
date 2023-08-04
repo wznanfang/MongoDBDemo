@@ -15,11 +15,9 @@ import java.time.LocalDateTime;
 public class Book {
 
     @Id
-    private String id;
+    private Long id;
     private LocalDateTime createDate;
     private String name;
-    private String author;
-    private Double price;
-    private Books books;
+    private BookInfo bookInfo;
     
 }
