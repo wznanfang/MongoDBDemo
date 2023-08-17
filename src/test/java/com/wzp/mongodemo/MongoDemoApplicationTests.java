@@ -56,7 +56,7 @@ class MongoDemoApplicationTests {
 
     @Test
     void jpaUpdate() {
-        Optional<Book> optional = bookRepository.findById("ab99660d-aecf-435e-b7dc-a96496d5628b");
+        Optional<Book> optional = bookRepository.findById(0L);
         Book book = optional.orElse(new Book());
         BookInfo bookInfo = book.getBookInfo();
         bookInfo.setPrice(99.99);
@@ -67,14 +67,14 @@ class MongoDemoApplicationTests {
 
     @Test
     void jpaDelete() {
-//        bookRepository.deleteById("ab99660d-aecf-435e-b7dc-a96496d5628b");
+//        bookRepository.deleteById(0L);
         bookRepository.deleteAll();
     }
 
 
     @Test
     void jpaFindById() {
-        Optional<Book> optional = bookRepository.findById("88f8d913-9ebd-4765-9ec3-a6b6c0f1bde7");
+        Optional<Book> optional = bookRepository.findById(0L);
         System.err.println(optional.orElse(null));
     }
 
@@ -174,7 +174,7 @@ class MongoDemoApplicationTests {
 
 
     @Test
-    void aggr() {
+    void aggregation() {
         //求平均数
 //        GroupOperation groupOperation = group().avg("price").as("averagePrice");
 //        Aggregation aggregation = newAggregation(groupOperation);
